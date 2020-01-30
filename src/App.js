@@ -29,18 +29,17 @@ function App() {
 	useEffect(
 		() => {
 			fetchData(latitude, longitude);
-		},
-		[ count ]
+		}
 	);
 
 	async function fetchData(latitude, longitude) {
 		const darkSkyApi = process.env.REACT_APP_DARK_SKY_API_KEY;
 		const weatherData = await fetch(`https://api.darksky.net/forecast/${darkSkyApi}/${latitude}, ${longitude}`)
 			.then((resp) => resp.json())
-			.then((data) => {
-				setData(data);
+			.then((json) => {
+				setData(json);
 				setLoading(false);
-			});
+			})
 		return weatherData;
 	}
 
@@ -49,12 +48,12 @@ function App() {
 	// }, 10000);
 
 	const latlng = [ { type: 'Latitude', fn: setLat }, { type: 'Longitude', fn: setLng } ];
-
 	return (
-		<div className="App">
-			<form className={classes.root} noValidate autoComplete="off">
-				{latlng.map((item) => (
-					<TextField
+		<div className={classes.root} >
+			<form noValidate autoComplete="off">
+				{latlng.map((item, idx) => (
+					<TextField 
+						key={idx}
 						id="standard-numsber"
 						onChange={item.fn}
 						label={item.type}
@@ -62,7 +61,7 @@ function App() {
 					/>
 				))}
 			</form>
-			{loading ? 'Loading' : <WeatherData data={data} />}
+			{loading ? 'Loading' : <WeatherData data={data} setLat={setLat} setLng={setLng} />}
 		</div>
 	);
 }

@@ -1,103 +1,128 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import { Card, CardHeader, CardContent, makeStyles, Avatar, Collapse, CardMedia, CardActions, IconButton, Typography } from '@material-ui/core';
-import {red } from '@material-ui/core/colors'
+import {
+	Card,
+	CardHeader,
+	CardContent,
+	makeStyles,
+	Avatar,
+	Collapse,
+	CardMedia,
+	CardActions,
+	IconButton,
+	Typography,
+	Grid
+} from '@material-ui/core';
+import { red } from '@material-ui/core/colors';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-const useStyles = makeStyles(theme => ({
-    card: {
-      maxWidth: 345,
-    },
-    media: {
-      height: 0,
-      paddingTop: '56.25%', // 16:9
-    },
-    expand: {
-      transform: 'rotate(0deg)',
-      marginLeft: 'auto',
-      transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-      }),
-    },
-    expandOpen: {
-      transform: 'rotate(180deg)',
-    },
-    avatar: {
-      backgroundColor: red[500],
-    },
-  }));
-export default (data, ...props) => {
-    console.log(data.data);
-    const classes = useStyles();
-    const [expanded, setExpanded] = React.useState(false);
-    const handleExpandClick = () => {
-        setExpanded(!expanded);
-      };
-  
-    return (
-        <>
-<Card className={classes.card}>
-      <CardHeader
-        avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            W
-          </Avatar>
-        }
-        title={data.data.timezone}
-        subheader={data.data.currently.time}
-      />
-      <CardMedia
-        className={classes.media}
-        image="/static/images/cards/paella.jpg"
-        title="Paella dish"
-      />
-      <CardContent>
-        <Typography variant="body2" color="textSecondary" component="p">
-          This impressive paella is a perfect party dish and a fun meal to cook together with your
-          guests. Add 1 cup of frozen peas along with the mussels, if you like.
-        </Typography>
-      </CardContent>
-      <CardActions disableSpacing>
-        
-        <IconButton
-          className={clsx(classes.expand, {
-            [classes.expandOpen]: expanded,
-          })}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </IconButton>
-      </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography paragraph>Method:</Typography>
-          <Typography paragraph>
-            Heat 1/2 cup of the broth in a pot until simmering, add saffron and set aside for 10
-            minutes.
-          </Typography>
-          <Typography paragraph>
-            Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over medium-high
-            heat. Add chicken, shrimp and chorizo, and cook, stirring occasionally until lightly
-            browned, 6 to 8 minutes. Transfer shrimp to a large plate and set aside, leaving chicken
-            and chorizo in the pan. Add pimentón, bay leaves, garlic, tomatoes, onion, salt and
-            pepper, and cook, stirring often until thickened and fragrant, about 10 minutes. Add
-            saffron broth and remaining 4 1/2 cups chicken broth; bring to a boil.
-          </Typography>
-          <Typography paragraph>
-            Add rice and stir very gently to distribute. Top with artichokes and peppers, and cook
-            without stirring, until most of the liquid is absorbed, 15 to 18 minutes. Reduce heat to
-            medium-low, add reserved shrimp and mussels, tucking them down into the rice, and cook
-            again without stirring, until mussels have opened and rice is just tender, 5 to 7
-            minutes more. (Discard any mussels that don’t open.)
-          </Typography>
-          <Typography>
-            Set aside off of the heat to let rest for 10 minutes, and then serve.
-          </Typography>
-        </CardContent>
-      </Collapse>
-    </Card>
-        </>
-    )
+const useStyles = makeStyles((theme) => ({
+	root: {
+		flexGrow: 1,
+		maxWidth: '500px'
+	},
+}));
+export default (props) => {
+	const { data, setLat, setLng } = props;
+	const classes = useStyles();
+    const [ expanded, setExpanded ] = useState(false);
+    
+    const [geoError, setGeoError] = useState(false);
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(handleCurrentLocation);
+          } else {
+            return setGeoError(true);
+          }
+    })
+
+    const handleCurrentLocation = (position) => {
+        setLat(position.coords.latitude);
+        setLng(position.coords.longitude);
+    }
+
+	const handleExpandClick = () => {
+		setExpanded(!expanded);
+	};
+
+    const time = (unix) => {
+		const date = new Date(unix * 1000);
+		const hours = date.getHours();
+		const minutes = '0' + date.getMinutes();
+		return hours + ':' + minutes.substr(-2);
+	};
+
+	const date = (unix) => {
+		const fullDate = new Date(unix * 1000);
+		const months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+		const year = fullDate.getFullYear();
+		const month = months[fullDate.getMonth()];
+		const date = fullDate.getDate();
+		return month + ' ' + date + ', ' + year;
+    };
+
+	console.log(data);
+	return (
+		<div className={classes.root}>
+            {geoError? "Geolocation is not supported by this browser." : null};
+			<Grid container spacing={1}>
+				<Grid item xs={12}>
+					<Card className={classes.card}>
+						<CardHeader
+							title={date(data.currently.time)}
+							subheader={`${data.timezone}: ${time(data.currently.time)}`}
+						/>
+						<CardContent>
+							<Grid item xs={12}>
+								{data.currently.summary}
+							</Grid>
+							<Grid item xs={12}>
+								Temperature: {data.currently.temperature}
+							</Grid>
+							<Grid item xs={12}>
+								Feels like: {data.currently.apparentTemperature}
+							</Grid>
+							<Grid item xs={12}>
+								Humidity: {data.currently.humidity}
+							</Grid>
+						</CardContent>
+					</Card>
+				</Grid>
+				<Grid item xs={12}>
+					<Card className={classes.card}>
+						<CardHeader title={'Next 7 Days'} />
+						<CardActions disableSpacing>
+							<IconButton
+								className={clsx(classes.expand, {
+									[classes.expandOpen]: expanded
+								})}
+								onClick={handleExpandClick}
+								aria-expanded={expanded}
+								aria-label="show more"
+							>
+								<ExpandMoreIcon />
+							</IconButton>
+						</CardActions>
+						<Collapse in={expanded} timeout="auto" unmountOnExit>
+                            <CardContent>
+							{data.daily.data.map((day) => {
+								return (
+									<Grid container spacing={2}>
+										<Grid item xs={3}>
+											{date(day.time)}: {' '}
+										</Grid>
+										<Grid item xs={9}>
+											{day.summary}
+										</Grid>
+									</Grid>
+								);
+							})}
+							</CardContent>
+						</Collapse>
+					</Card>
+				</Grid>
+			</Grid>
+		</div>
+	);
 };
