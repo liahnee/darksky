@@ -4,7 +4,7 @@ import './App.css';
 import WeatherData from './container/weatherData';
 import CitySearchBox from './components/citySearchBox';
 
-import { TextField, Typography, Divider } from '@material-ui/core';
+import { TextField, Typography, Divider, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -12,51 +12,63 @@ const useStyles = makeStyles((theme) => ({
 		margin: theme.spacing(1),
 		maxWidth: '500px',
 		marginLeft: 'auto',
-		marginRight: 'auto',	
+		marginRight: 'auto'
 	},
 	form: {
 		marginTop: '10vh',
 		marginBottom: '10px',
-		maxWidth: '500px',
+		maxWidth: '500px'
 	},
 	dividerFullWidth: {
 		margin: `5px 100px 0px ${theme.spacing(2)}px`,
-		justifyContent: 'center',
+		justifyContent: 'center'
 	},
 	textField: {
-		padding: '10px',
+		padding: '10px'
 	}
 }));
 
 function App() {
 	const classes = useStyles();
 
-	const [ data, setData ] = useState(null);
-	const [ loading, setLoading ] = useState(true);
-	const [ count, setCount ] = useState(0);
-
-	const [ longitude, setLng ] = useState('-0.127758');
-	const [ latitude, setLat ] = useState('51.507351');
-	const [ name, setName ] = useState('London');
-
+	const [ checkedCurrentGeo, setCheckedCurrentGeo ] = useState(false);
 	const [ geoError, setGeoError ] = useState(false);
+	const [ loading, setLoading ] = useState(true);
+
+	const [ data, setData ] = useState(null);
+	const [ longitude, setLng ] = useState(null);
+	const [ latitude, setLat ] = useState(null);
+	const [ name, setName ] = useState('');
+
+	const [ count, setCount ] = useState(0);
+	const [ newSearch, setNewSearch ] = useState(0);
 
 	useEffect(() => {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(handleCurrentLocation);
+
 		} else {
-			return setGeoError(true);
+			setGeoError(true);
 		}
-	});
+	}, [geoError]);
 
 	const handleCurrentLocation = (position) => {
 		setLat(position.coords.latitude);
 		setLng(position.coords.longitude);
+		setCheckedCurrentGeo(true);
 	};
 
-	useEffect(() => {
-		fetchData(latitude, longitude);
-	});
+	useEffect(
+		() => {
+			console.log('newSearch/count effect');
+			if (latitude !== null && longitude !== null) {
+				console.log('lat', latitude)
+				console.log('lng', longitude)
+				fetchData(latitude, longitude);
+			}
+		},
+		[ newSearch, count, checkedCurrentGeo ]
+	);
 
 	async function fetchData(latitude, longitude) {
 		const darkSkyApi = process.env.REACT_APP_DARK_SKY_API_KEY;
@@ -64,20 +76,26 @@ function App() {
 			.then((resp) => resp.json())
 			.then((json) => {
 				setData(json);
+			})
+			.then(() => {
 				setLoading(false);
 			});
-		return weatherData;
 	}
 
-	// useInterval(() => {
-	//   setCount(count + 1);
-	// }, 10000);
+	useInterval(() => {
+		setCount(count + 1);
+	}, 60000);
+
+	const handleSubmit = () => {
+		setLoading(true);
+		setNewSearch(newSearch + 1);
+	};
 
 	const latlng = [ { type: 'Latitude', fn: setLat }, { type: 'Longitude', fn: setLng } ];
 	return (
 		<div className={classes.root}>
 			{geoError ? 'Geolocation is not supported by this browser.' : null}
-			<form noValidate autoComplete="off" className={classes.form}>
+			<form noValidate autoComplete="off" className={classes.form} onSubmit={handleSubmit}>
 				{latlng.map((item, idx) => (
 					<TextField
 						className={classes.textField}
@@ -88,16 +106,12 @@ function App() {
 						InputLabelProps={{ shrink: true }}
 					/>
 				))}
+				<Button variant="outlined">Search</Button>
 			</form>
 			<Divider variant="middle" />
-				<Typography
-					className={classes.dividerFullWidth}
-					color="textSecondary"
-					display="block"
-					variant="caption"
-				>
-					OR
-				</Typography>
+			<Typography className={classes.dividerFullWidth} color="textSecondary" display="block" variant="caption">
+				OR
+			</Typography>
 			<CitySearchBox />
 			{loading ? 'Loading' : <WeatherData data={data} />}
 		</div>
