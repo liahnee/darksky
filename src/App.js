@@ -72,9 +72,7 @@ function App() {
 
 	async function fetchData(latitude, longitude) {
 		const darkSkyApi = process.env.REACT_APP_DARK_SKY_API_KEY;
-		const weatherData = await fetch(`https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/${darkSkyApi}/${latitude}, ${longitude}`, {
-			mode: 'no-cors'
-		})
+		const weatherData = await fetch(`https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/${darkSkyApi}/${latitude}, ${longitude}`)
 			.then((resp) => resp.json())
 			.then((json) => {
 				setData(json);
