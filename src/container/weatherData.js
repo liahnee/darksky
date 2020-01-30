@@ -1,46 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 import {
 	Card,
 	CardHeader,
 	CardContent,
 	makeStyles,
-	Avatar,
 	Collapse,
-	CardMedia,
 	CardActions,
 	IconButton,
-	Typography,
 	Grid
 } from '@material-ui/core';
-import { red } from '@material-ui/core/colors';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
 		flexGrow: 1,
-		maxWidth: '500px'
+        maxWidth: '500px',
+        marginLeft: 'auto',
+        marginRight: 'auto'
 	},
 }));
 export default (props) => {
 	const { data, setLat, setLng } = props;
 	const classes = useStyles();
     const [ expanded, setExpanded ] = useState(false);
-    
-    const [geoError, setGeoError] = useState(false);
 
-    useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(handleCurrentLocation);
-          } else {
-            return setGeoError(true);
-          }
-    })
-
-    const handleCurrentLocation = (position) => {
-        setLat(position.coords.latitude);
-        setLng(position.coords.longitude);
-    }
 
 	const handleExpandClick = () => {
 		setExpanded(!expanded);
@@ -65,7 +49,7 @@ export default (props) => {
 	console.log(data);
 	return (
 		<div className={classes.root}>
-            {geoError? "Geolocation is not supported by this browser." : null};
+
 			<Grid container spacing={1}>
 				<Grid item xs={12}>
 					<Card className={classes.card}>

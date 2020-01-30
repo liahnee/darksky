@@ -2,16 +2,29 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 import WeatherData from './container/weatherData';
+import CitySearchBox from './components/citySearchBox';
 
-import TextField from '@material-ui/core/TextField';
+import { TextField, Typography, Divider } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
-		'& .MuiTextField-root': {
-			margin: theme.spacing(1),
-			width: 200
-		}
+		margin: theme.spacing(1),
+		maxWidth: '500px',
+		marginLeft: 'auto',
+		marginRight: 'auto',	
+	},
+	form: {
+		marginTop: '10vh',
+		marginBottom: '10px',
+		maxWidth: '500px',
+	},
+	dividerFullWidth: {
+		margin: `5px 100px 0px ${theme.spacing(2)}px`,
+		justifyContent: 'center',
+	},
+	textField: {
+		padding: '10px',
 	}
 }));
 
@@ -26,11 +39,24 @@ function App() {
 	const [ latitude, setLat ] = useState('51.507351');
 	const [ name, setName ] = useState('London');
 
-	useEffect(
-		() => {
-			fetchData(latitude, longitude);
+	const [ geoError, setGeoError ] = useState(false);
+
+	useEffect(() => {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(handleCurrentLocation);
+		} else {
+			return setGeoError(true);
 		}
-	);
+	});
+
+	const handleCurrentLocation = (position) => {
+		setLat(position.coords.latitude);
+		setLng(position.coords.longitude);
+	};
+
+	useEffect(() => {
+		fetchData(latitude, longitude);
+	});
 
 	async function fetchData(latitude, longitude) {
 		const darkSkyApi = process.env.REACT_APP_DARK_SKY_API_KEY;
@@ -39,7 +65,7 @@ function App() {
 			.then((json) => {
 				setData(json);
 				setLoading(false);
-			})
+			});
 		return weatherData;
 	}
 
@@ -49,19 +75,31 @@ function App() {
 
 	const latlng = [ { type: 'Latitude', fn: setLat }, { type: 'Longitude', fn: setLng } ];
 	return (
-		<div className={classes.root} >
-			<form noValidate autoComplete="off">
+		<div className={classes.root}>
+			{geoError ? 'Geolocation is not supported by this browser.' : null}
+			<form noValidate autoComplete="off" className={classes.form}>
 				{latlng.map((item, idx) => (
-					<TextField 
+					<TextField
+						className={classes.textField}
 						key={idx}
-						id="standard-numsber"
+						id="standard-number"
 						onChange={item.fn}
 						label={item.type}
 						InputLabelProps={{ shrink: true }}
 					/>
 				))}
 			</form>
-			{loading ? 'Loading' : <WeatherData data={data} setLat={setLat} setLng={setLng} />}
+			<Divider variant="middle" />
+				<Typography
+					className={classes.dividerFullWidth}
+					color="textSecondary"
+					display="block"
+					variant="caption"
+				>
+					OR
+				</Typography>
+			<CitySearchBox />
+			{loading ? 'Loading' : <WeatherData data={data} />}
 		</div>
 	);
 }
