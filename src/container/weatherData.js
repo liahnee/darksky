@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 export default (props) => {
-	const { data, setLat, setLng } = props;
+	const { data } = props;
 	const classes = useStyles();
     const [ expanded, setExpanded ] = useState(false);
 

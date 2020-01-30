@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import socketIOClient from "socket.io-client";
 import './App.css';
 
 import WeatherData from './container/weatherData';
@@ -6,6 +7,8 @@ import CitySearchBox from './components/citySearchBox';
 
 import { TextField, Typography, Divider, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+
+const darkSkyApi = process.env.REACT_APP_DARK_SKY_API_KEY;
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -60,10 +63,9 @@ function App() {
 
 	useEffect(
 		() => {
-			console.log('newSearch/count effect');
 			if (latitude !== null && longitude !== null) {
-				console.log('lat', latitude)
-				console.log('lng', longitude)
+				const socket = socketIOClient(`https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/${darkSkyApi}/${latitude}, ${longitude}`);
+				socket.on("FromAPI", data => setData(data))
 				fetchData(latitude, longitude);
 			}
 		},
@@ -71,7 +73,7 @@ function App() {
 	);
 
 	async function fetchData(latitude, longitude) {
-		const darkSkyApi = process.env.REACT_APP_DARK_SKY_API_KEY;
+
 		const weatherData = await fetch(`https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/${darkSkyApi}/${latitude}, ${longitude}`)
 			.then((resp) => resp.json())
 			.then((json) => {
