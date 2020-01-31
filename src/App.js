@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import socketIOClient from "socket.io-client";
 import './App.css';
 
 import WeatherData from './container/weatherData';
@@ -64,8 +63,6 @@ function App() {
 	useEffect(
 		() => {
 			if (latitude !== null && longitude !== null) {
-				const socket = socketIOClient(`https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/${darkSkyApi}/${latitude}, ${longitude}`);
-				socket.on("FromAPI", data => setData(data))
 				fetchData(latitude, longitude);
 			}
 		},
