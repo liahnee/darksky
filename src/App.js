@@ -86,7 +86,6 @@ function App() {
 	}, 60000);
 
 	const handleSubmit = () => {
-		e.preventDefault();
 		setLoading(true);
 		setNewSearch(newSearch + 1);
 	};
