@@ -1,6 +1,9 @@
 {
   "name": "code-challenge-weather-app-2",
   "version": "0.1.0",
+  "engines": {
+    "node": "12.7.0"
+  },
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.9.0",
