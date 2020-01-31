@@ -40,7 +40,6 @@ function App() {
 	const [ data, setData ] = useState(null);
 	const [ longitude, setLng ] = useState(null);
 	const [ latitude, setLat ] = useState(null);
-	const [ name, setName ] = useState('');
 
 	const [ count, setCount ] = useState(0);
 	const [ newSearch, setNewSearch ] = useState(0);
@@ -48,7 +47,7 @@ function App() {
 	useEffect(() => {
 		if (navigator.geolocation) {
 			navigator.geolocation.getCurrentPosition(handleCurrentLocation);
-
+			// console.log('should be running first')
 		} else {
 			setGeoError(true);
 		}
@@ -58,11 +57,13 @@ function App() {
 		setLat(position.coords.latitude);
 		setLng(position.coords.longitude);
 		setCheckedCurrentGeo(true);
+		// console.log('did i set the lat and lng')
 	};
 
 	useEffect(
 		() => {
 			if (latitude !== null && longitude !== null) {
+				// console.log('lat not null')
 				fetchData(latitude, longitude);
 			}
 		},
@@ -70,8 +71,7 @@ function App() {
 	);
 
 	async function fetchData(latitude, longitude) {
-
-		const weatherData = await fetch(`https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/${darkSkyApi}/${latitude}, ${longitude}`)
+		await fetch(`https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/${darkSkyApi}/${latitude}, ${longitude}`)
 			.then((resp) => resp.json())
 			.then((json) => {
 				setData(json);
@@ -86,6 +86,7 @@ function App() {
 	}, 60000);
 
 	const handleSubmit = () => {
+		e.preventDefault();
 		setLoading(true);
 		setNewSearch(newSearch + 1);
 	};

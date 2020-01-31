@@ -90,9 +90,9 @@ export default (props) => {
 						</CardActions>
 						<Collapse in={expanded} timeout="auto" unmountOnExit>
                             <CardContent>
-							{data.daily.data.map((day) => {
+							{data.daily.data.map((day, idx) => {
 								return (
-									<Grid container spacing={2}>
+									<Grid container spacing={2} key={idx}>
 										<Grid item xs={3}>
 											{date(day.time)}: {' '}
 										</Grid>

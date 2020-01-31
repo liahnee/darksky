@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { TextField, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 export default () => {
 	const classes = useStyles();
 
-	const handleCityName = () => {};
+	// const handleCityName = () => {};
 	return (
 		<div>
 			<form>
