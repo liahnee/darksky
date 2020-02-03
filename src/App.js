@@ -71,7 +71,7 @@ function App() {
 	);
 
 	async function fetchData(latitude, longitude) {
-		await fetch(`https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/${darkSkyApi}/${latitude}, ${longitude}`)
+		await fetch(`https://cors-anywhere.herokuapp.com/https://api.darksky.net/forecast/${darkSkyApi}/${latitude},${longitude}`)
 			.then((resp) => resp.json())
 			.then((json) => {
 				setData(json);
